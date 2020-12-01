@@ -1,52 +1,50 @@
+"""unittest file to test HW10"""
 import unittest
-import os
-from HW09_Yash_Daftardar import Repository, Student, Instructor
+from Student_Repository_Yash_Daftardar import Repository,Student,Instructor
+import os, sys
+from prettytable import PrettyTable
 
+class test_class_instructor(unittest.TestCase):
+    """ Class  to perform error checking ad handelling """
+    def test_class_instructor(self):
+        
+        stevens: Repository = Repository(r"E:/SSW-810-Special Topics/SSW-810-Yash/Assignment/10")
+        list1 = list()
+        list2 = [['98765', 'Einstein, A', 'SFEN', 'SSW 567', 4], ['98765', 'Einstein, A', 'SFEN', 'SSW 540', 3], ['98764', 'Feynman, R', 'SFEN', 'SSW 564', 3], ['98764', 'Feynman, R', 'SFEN', 'SSW 687', 3], ['98764', 'Feynman, R', 'SFEN', 'CS 501', 1], ['98764', 'Feynman, R', 'SFEN', 'CS 545', 1], ['98763', 'Newton, I', 'SFEN', 'SSW 555', 1], ['98763', 'Newton, I', 'SFEN', 'SSW 689', 1], ['98760', 'Darwin, C', 'SYEN', 'SYS 800', 1], ['98760', 'Darwin, C', 'SYEN', 'SYS 750', 1], ['98760', 'Darwin, C', 'SYEN', 'SYS 611', 2], ['98760', 'Darwin, C', 'SYEN', 'SYS 645', 1]]
+        for instructor in stevens._instruct.values():
+            for row in instructor.details():
+                list1.append(list(row))
+        self.assertEqual(list1, list2)
 
-class TestRepository(unittest.TestCase):
-    """ Test for repository """
+class test_class_student(unittest.TestCase):
+    def test_class_student(self):
+        
+        stevens: Repository = Repository(r"E:/SSW-810-Special Topics/SSW-810-Yash/Assignment/10")
+        list1 = list()
+        list2 = [['10103', 'Baldwin, C', 'SFEN', ['CS 501', 'SSW 564', 'SSW 567', 'SSW 687'], ['SSW 540', 'SSW 555'], [], '3.44'],['10115', 'Wyatt, X', 'SFEN', ['CS 545', 'SSW 564', 'SSW 567', 'SSW 687'], ['SSW 540', 'SSW 555'], [], '3.81'],['10172', 'Forbes, I', 'SFEN', ['SSW 555', 'SSW 567'], ['SSW 540', 'SSW 564'], ['CS 501', 'CS 513', 'CS 545'], '3.88'],['10175', 'Erickson, D', 'SFEN', ['SSW 564', 'SSW 567', 'SSW 687'], ['SSW 540', 'SSW 555'], ['CS 501', 'CS 513', 'CS 545'], '3.58'],['10183', 'Chapman, O', 'SFEN', ['SSW 689'], ['SSW 540', 'SSW 555', 'SSW 564', 'SSW 567'], ['CS 501', 'CS 513', 'CS 545'], '4.00'],['11399', 'Cordova, I', 'SYEN', ['SSW 540'], ['SYS 612', 'SYS 671', 'SYS 800'], [], '3.00'],['11461', 'Wright, U', 'SYEN', ['SYS 611', 'SYS 750', 'SYS 800'], ['SYS 612', 'SYS 671'], ['SSW 540', 'SSW 565', 'SSW 810'], '3.92'],['11658', 'Kelly, P', 'SYEN', [], ['SYS 612', 'SYS 671', 'SYS 800'], ['SSW 540', 'SSW 565', 'SSW 810'], 0.0],['11714', 'Morton, A', 'SYEN', ['SYS 611', 'SYS 645'], ['SYS 612', 'SYS 671', 'SYS 800'], ['SSW 540', 'SSW 565', 'SSW 810'], '3.00'],['11788', 'Fuller, E', 'SYEN', ['SSW 540'], ['SYS 612', 'SYS 671', 'SYS 800'], [], '4.00']]
+        for student in stevens._stud.values():
+            list1.append(list(student.details()))
+        self.assertEqual(list1, list2)
+    
+class test_file_not_found_error(unittest.TestCase): 
+    def test_file_not_found_error(self) -> None:
+       
+        with self.assertRaises(FileNotFoundError):
+            Repository(r"E:/SSW-810-Special Topics/SSW-810-Yash/Assignment/10/Nofile")
 
-    def setUp(self) -> None:
-        """This methods allow you to define instructions that will be executed before and after each test method"""
-        self.test_path: str = "E:/SSW-810-Special Topics/SSW-810-Yash/Assignment/09"
+   
+class test_class_major(unittest.TestCase):
+    def test_class_major(self):
+       
+        stevens: Repository = Repository(r"E:/SSW-810-Special Topics/SSW-810-Yash/Assignment/10")
+        list1 = list()
+        list2 = [['SFEN', ['SSW 540', 'SSW 555', 'SSW 564', 'SSW 567'], ['CS 501', 'CS 513', 'CS 545']], ['SYEN', ['SYS 612', 'SYS 671', 'SYS 800'], ['SSW 540', 'SSW 565', 'SSW 810']]]
+        for major in stevens._maj.values():
+            list1.append(major.details())
+       
+        self.assertEqual(list1, list2)
 
-        self.repo: Repository = Repository(self.test_path)
+        
 
-    def test_student_attributes(self) -> None:
-        """ Testing for student attributes """
-        expected = {'10103':  ['10103', 'Baldwin, C', ['CS 501', 'SSW 564', 'SSW 567', 'SSW 687']],
-                    '10115':  ['10115', 'Wyatt, X', ['CS 545', 'SSW 564', 'SSW 567', 'SSW 687']],
-                    '10172':  ['10172', 'Forbes, I', ['SSW 555', 'SSW 567']],
-                    '10175':  ['10175', 'Erickson, D', ['SSW 564', 'SSW 567', 'SSW 687']],
-                    '10183':  ['10183', 'Chapman, O', ['SSW 689']],
-                    '11399':  ['11399', 'Cordova, I', ['SSW 540']],
-                    '11461':  ['11461', 'Wright, U', ['SYS 611', 'SYS 750', 'SYS 800']],
-                    '11658':  ['11658', 'Kelly, P', ['SSW 540']],
-                    '11714':  ['11714', 'Morton, A', ['SYS 611', 'SYS 645']],
-                    '11788':  ['11788', 'Fuller, E', ['SSW 540']]}
-
-        calculated = {cwid: student.details()for cwid, student in self.repo._stud.items()}
-        self.assertEqual(expected, calculated)
-
-    def test_instructor_attributes(self) -> None:
-        """ Testing for Instructor attributes """
-        expected = {('98765', 'Einstein, A', 'SFEN', 'SSW 567', 4),
-                    ('98765', 'Einstein, A', 'SFEN', 'SSW 540', 3),
-                    ('98764', 'Feynman, R', 'SFEN', 'SSW 564', 3),
-                    ('98764', 'Feynman, R', 'SFEN', 'SSW 687', 3),
-                    ('98764', 'Feynman, R', 'SFEN', 'CS 501', 1),
-                    ('98764', 'Feynman, R', 'SFEN', 'CS 545', 1),
-                    ('98763', 'Newton, I',  'SFEN', 'SSW 555', 1),
-                    ('98763', 'Newton, I', 'SFEN', 'SSW 689', 1),
-                    ('98760', 'Darwin, C', 'SYEN', 'SYS 800', 1),
-                    ('98760', 'Darwin, C', 'SYEN', 'SYS 750', 1),
-                    ('98760', 'Darwin, C', 'SYEN', 'SYS 611', 2),
-                    ('98760', 'Darwin, C', 'SYEN', 'SYS 645', 1)}
-
-        calculated = {tuple(detail) for instructor in self.repo._instruct.values() for detail in instructor.details()}
-        self.assertEqual(expected, calculated)
-
-
-if __name__ == "__main__":
-    """ Run test cases """
+if __name__ == '__main__':
     unittest.main(exit=False, verbosity=2)
