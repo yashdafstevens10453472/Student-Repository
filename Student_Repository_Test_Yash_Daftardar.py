@@ -1,6 +1,6 @@
 import unittest
 import os
-from HW09_Yash_Daftardar import Repository, Student, Instructor
+from Student_Repository_Yash_Daftardar import Repository, Student, Instructor
 
 
 class TestRepository(unittest.TestCase):
