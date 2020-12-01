@@ -1,6 +1,7 @@
 """ Creating a Data Repository for University """
 
 import os
+import sqlite3
 import collections
 from collections import defaultdict
 from prettytable import PrettyTable
@@ -34,17 +35,17 @@ class Repository:
 
     def new_instruct(self, path) -> None:
         """ Instructor detail """
-        for cwid, name, deptarment in self.file_reading(path, 3, header=True, sep='|'):
+        for cwid, name, deptarment in self.file_reading(path, 3, header=True, sep='\t'):
             self._instruct[cwid] = Instructor(cwid, name, deptarment)    
 
     def new_stud(self, path) -> None:
         """ Student detail """
-        for cwid, name, major in self.file_reading(path, 3, header=True, sep=';'):
+        for cwid, name, major in self.file_reading(path, 3, header=True, sep='\t'):
             self._stud[cwid] = Student(cwid, name, major,self._maj[major].get_req(),self._maj[major].get_elec())
 
     def new_grades(self, path) -> None:
         """Grades details to map with student and instructor"""
-        for std_cwid, course, grade, instructor_cwid in self.file_reading(path, 4, header=True, sep='|'):
+        for std_cwid, course, grade, instructor_cwid in self.file_reading(path, 4, header=True, sep='\t'):
             if instructor_cwid in self._instruct:
                 self._instruct[instructor_cwid].add_student_to_course(course)
             else:
@@ -82,6 +83,8 @@ class Repository:
         student_tab.field_names = ['CWID', 'Name','Majors', 'Completed Courses','Remaininig Courses','Remaining Elective','GPA']
         for student in self._stud.values():
             student_tab.add_row(student.details())
+        print("\n")
+        print("Student Summary")
         print(student_tab)
 
     def instruct_table(self) -> None:
@@ -91,6 +94,8 @@ class Repository:
         for instructor in self._instruct.values():
             for row in instructor.details():
                 instructor_tab.add_row(row)
+        print("\n")
+        print("Instructor Summary")
         print(instructor_tab)
     
     def major_tab(self)->None:
@@ -98,7 +103,18 @@ class Repository:
         m_tab.field_names=['Major','Required courses','Elective']
         for mj in self._maj.values():
             m_tab.add_row(mj.details())
+        print("Major Summary")
         print(m_tab)
+    
+    def student_grade_table_db(self,db_path):
+        ptgrades: PrettyTable = PrettyTable()
+        ptgrades.field_names = ['Name','CWID','Course','Grade','Instructor']
+        db: sqlite3.Connection = sqlite3.connect(db_path)
+        for row in db.execute("SELECT (s.Name) as 'Student',(s.CWID) as 'CWID',(g.Course) as 'In_Course',(g.Grade) as 'Earned_grade',(i.Name) as 'Thought_by' from students as s inner join grades as g on s.CWID = g.StudentCWID inner join instructors i on g.InstructorCWID = i.CWID ORDER BY s.Name"):
+            ptgrades.add_row(row)
+        print("\n")
+        print("Grades Summary")
+        print(ptgrades)
 
 class Major:
     def __init__(self,major:str)->None:
@@ -133,7 +149,7 @@ class Student:
         self._courses: Dict[str, str] = dict()
         self._remaining_req:List[str]=required
         self._remaining_elec: List[str] = electives
-        self._grade:Dict[str,float] = {'A':4.0, 'A-':3.75, 'B+':3.25, 'B':3.0, 'B-':2.75, 'C+':2.25, 'C':2.0}
+        self._grade:Dict[str,float] = {'A':4.0, 'A-':3.75, 'B+':3.25, 'B':3.0, 'B-':2.75, 'C+':2.25, 'C':2.0 }
         self._smry_st:  Dict[str,str] = dict()
 
     def add_coursework(self, course: str, grade: str) -> None:
@@ -155,9 +171,11 @@ class Student:
             if v == '':
                 count=-1
                 continue
-            if v in self._grade:
+            if v in self._grade :
                 sum=sum+self._grade[v]
                 count+=1
+            else:
+                count +=1
         if count==-1:
             return "NA"
         elif count==0:
@@ -198,10 +216,11 @@ class Instructor:
             yield [self._cwid, self._name, self._deptarment, course, count]
 
 def main():
-    studuni=Repository('E:/SSW-810-Special Topics/SSW-810-Yash/Assignment/10')
+    studuni=Repository('E:/SSW-810-Special Topics/SSW-810-Yash/Assignment/11')
     studuni.major_tab()
     studuni.stud_table()
     studuni.instruct_table()
+    studuni.student_grade_table_db('E:/SSW-810-Special Topics/SSW-810-Yash/Assignment/11/810_assginemt11')
 
 if __name__ == '__main__':
     main()
